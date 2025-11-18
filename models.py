@@ -1,10 +1,15 @@
 from peewee import *
 from datetime import datetime
+import os
 
-# SQLite ma'lumotlar bazasi
-database = SqliteDatabase('kiyim_dokoni.db')
+# Vercelda /tmp papkasini ishlatish, aks holda joriy papka
+if 'VERCEL' in os.environ:
+    DB_NAME = '/tmp/kiyim_dokoni.db'
+else:
+    DB_NAME = 'kiyim_dokoni.db'
 
-# User modeli (Foydalanuvchi)
+database = SqliteDatabase(DB_NAME)
+
 class User(Model):
     username = CharField(unique=True, max_length=50)
     email = CharField(unique=True, max_length=100)
@@ -15,7 +20,6 @@ class User(Model):
         database = database
         table_name = 'users'
 
-# Product modeli (Mahsulot)
 class Product(Model):
     name = CharField(max_length=100)
     description = TextField()
@@ -27,10 +31,3 @@ class Product(Model):
     class Meta:
         database = database
         table_name = 'products'
-
-# Ma'lumotlar bazasini yaratish
-if __name__ == '__main__':
-    database.connect()
-    database.create_tables([User, Product], safe=True)
-    print("Ma'lumotlar bazasi muvaffaqiyatli yaratildi!")
-    database.close()
